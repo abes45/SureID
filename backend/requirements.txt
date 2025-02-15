@@ -1,4 +1,8 @@
-fastapi
-uvicorn
-motor
-pydantic
+fastapi==0.95.0
+uvicorn[standard]==0.22.0
+motor==3.1.1
+PyJWT==2.6.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.5
+python-dotenv==0.21.0
+pymongo==4.3.3

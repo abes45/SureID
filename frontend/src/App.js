@@ -1,74 +1,70 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/Login';
+import ProviderDashboard from './components/ProviderDashboard';
+import CheckIn from './components/CheckIn';
+import GuestList from './components/GuestList';
+import CheckInHistory from './components/CheckInHistory';
+import SecurityDashboard from './components/SecurityDashboard';
+import ManualSearch from './components/ManualSearch';
+import AdminUserManagement from './components/AdminUserManagement';
+import RoleProtectedRoute from './components/RoleProtectedRoute';
+import './App.css';
 
 function App() {
-  const [guests, setGuests] = useState([]);
-  const [newGuest, setNewGuest] = useState({ name: '', id_number: '', document_type: '' });
-
-  useEffect(() => {
-    fetchGuests();
-  }, []);
-
-  const fetchGuests = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/guests`);
-      setGuests(response.data);
-    } catch (error) {
-      console.error('Error fetching guests:', error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setNewGuest({ ...newGuest, [e.target.name]: e.target.value });
-  };
-
-  const addGuest = async () => {
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/guests`, newGuest);
-      setGuests([...guests, response.data]);
-      setNewGuest({ name: '', id_number: '', document_type: '' });
-    } catch (error) {
-      console.error('Error adding guest:', error);
-    }
-  };
-
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>SureID Guest Verification</h1>
-      <h2>Add New Guest</h2>
-      <div>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={newGuest.name}
-          onChange={handleInputChange}
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+
+        {/* Provider routes: only provider and admin */}
+        <Route 
+          path="/provider/*" 
+          element={
+            <RoleProtectedRoute allowedRoles={["provider", "admin"]}>
+              <ProviderDashboard />
+            </RoleProtectedRoute>
+          }
+        >
+          <Route path="checkin" element={<CheckIn />} />
+          <Route path="guestlist" element={<GuestList />} />
+          <Route path="checkinhistory" element={<CheckInHistory />} />
+          <Route index element={<CheckIn />} />
+        </Route>
+
+        {/* Security routes: only security and admin */}
+        <Route 
+          path="/security/*" 
+          element={
+            <RoleProtectedRoute allowedRoles={["security", "admin"]}>
+              <SecurityDashboard />
+            </RoleProtectedRoute>
+          }
         />
-        <input
-          type="text"
-          name="id_number"
-          placeholder="ID Number"
-          value={newGuest.id_number}
-          onChange={handleInputChange}
+
+        {/* Manual routes: only security and admin */}
+        <Route 
+          path="/manual/*" 
+          element={
+            <RoleProtectedRoute allowedRoles={["security", "admin"]}>
+              <ManualSearch />
+            </RoleProtectedRoute>
+          }
         />
-        <input
-          type="text"
-          name="document_type"
-          placeholder="Document Type"
-          value={newGuest.document_type}
-          onChange={handleInputChange}
+
+        {/* Admin route: only admin */}
+        <Route 
+          path="/admin/users" 
+          element={
+            <RoleProtectedRoute allowedRoles={["admin"]}>
+              <AdminUserManagement />
+            </RoleProtectedRoute>
+          }
         />
-        <button onClick={addGuest}>Add Guest</button>
-      </div>
-      <h2>Guest List</h2>
-      <ul>
-        {guests.map((guest) => (
-          <li key={guest.id}>
-            {guest.name} - {guest.id_number} ({guest.document_type})
-          </li>
-        ))}
-      </ul>
-    </div>
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Router>
   );
 }
 

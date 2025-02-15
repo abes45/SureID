@@ -25,6 +25,10 @@ services:
       MONGO_URI: "mongodb://root:example@mongodb:27017/?authSource=admin"
     networks:
       - sureid_network
+    volumes:
+      - ./backend:/app  # Mount local backend directory into container's /app directory
+      - /app/__pycache__  # Optional: prevent overriding __pycache__
+
 
   frontend:
     build:
@@ -39,6 +43,10 @@ services:
       - sureid_network
     environment:
       REACT_APP_BACKEND_URL: "http://localhost:8000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - /app/node_modules
 
 volumes:
   mongo_data:
