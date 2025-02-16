@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './ManualSearch.css';
 
-function ManualSearch() {
+function ManualSearch({ onClose }) {
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -41,7 +41,10 @@ function ManualSearch() {
       return;
     }
     try {
-      const response = await axios.put(`${backendUrl}/api/guests/${selectedGuest.id}/flag`, { flagged: flagStatus });
+      const response = await axios.put(
+        `${backendUrl}/api/guests/${selectedGuest.id}/flag`,
+        { flagged: flagStatus }
+      );
       setUpdateMessage(`Guest ${response.data.name} flag status updated to ${response.data.flagged}`);
       setSelectedGuest(response.data);
     } catch (error) {
@@ -64,7 +67,6 @@ function ManualSearch() {
   return (
     <div className="manual-search-container">
       <h2>Manual Guest Search & Flagging</h2>
-      
       <div className="search-form">
         <h3>Search Guest</h3>
         <input
@@ -79,7 +81,11 @@ function ManualSearch() {
           {searchResults.length > 0 ? (
             <ul className="result-list">
               {searchResults.map(guest => (
-                <li key={guest.id} onClick={() => selectGuest(guest)} className="result-item">
+                <li
+                  key={guest.id}
+                  onClick={() => selectGuest(guest)}
+                  className="result-item"
+                >
                   {guest.name} - {guest.friendly_id} - {guest.id_number} - {guest.document_type} {guest.flagged ? "(Flagged)" : ""}
                 </li>
               ))}
@@ -150,6 +156,8 @@ function ManualSearch() {
         <button className="button" onClick={createGuest}>Create Guest</button>
         {createMessage && <p className="message">{createMessage}</p>}
       </div>
+      {/* Optional: A close button could be added inside the modal if needed */}
+      <button className="modal-close-btn-inside" onClick={onClose}>Close</button>
     </div>
   );
 }

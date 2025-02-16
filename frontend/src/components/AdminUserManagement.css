@@ -1,21 +1,28 @@
-.admin-user-management {
+.admin-container {
     background-color: #fff;
-    padding: 20px;
-    margin: 20px auto;
     max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   }
   
-  .user-form label {
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .admin-form label {
     display: block;
     margin-bottom: 10px;
     font-weight: bold;
     color: #333;
   }
   
-  .user-form input,
-  .user-form select {
+  .admin-form input,
+  .admin-form select {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
@@ -24,7 +31,7 @@
     font-size: 16px;
   }
   
-  .user-form button {
+  .admin-form button {
     width: 100%;
     padding: 10px;
     background-color: #007bff;
@@ -36,13 +43,14 @@
     margin-top: 10px;
   }
   
-  .user-form button:hover {
+  .admin-form button:hover {
     background-color: #0056b3;
   }
   
-  .message {
+  .admin-message {
     margin-top: 15px;
     font-size: 16px;
     color: green;
+    text-align: center;
   }
   

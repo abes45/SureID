@@ -1,17 +1,18 @@
-# backend/database.py
 import os
-import motor.motor_asyncio
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Get the MongoDB URI from an environment variable.
-# The default uses user 'root', password 'example', host 'mongodb' (Docker service), port 27017,
-# and specifies 'admin' as the authSource so that the credentials are verified against the admin database.
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://root:example@mongodb:27017/?authSource=admin")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:password@postgres:5432/sureid")
 
-# Create an asynchronous MongoDB client.
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
+engine = create_async_engine(DATABASE_URL, echo=True)
 
-# Connect to the 'sureid' database.
-database = client.sureid
+async_session = sessionmaker(
+    engine, expire_on_commit=False, class_=AsyncSession
+)
 
-# Expose the database object as 'db'
-db = database
+Base = declarative_base()
+
+# Dependency for FastAPI routes:
+async def get_db():
+    async with async_session() as session:
+        yield session

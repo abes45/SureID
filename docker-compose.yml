@@ -1,57 +1,60 @@
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - sureid_network
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-
   backend:
-    build:
-      context: .
-      dockerfile: ./backend/Dockerfile
-    container_name: fastapi_backend
+    build: ./backend
+    container_name: backend
     ports:
       - "8000:8000"
-    depends_on:
-      - mongodb
     environment:
-      MONGO_URI: "mongodb://root:example@mongodb:27017/?authSource=admin"
-    networks:
-      - sureid_network
+      - SECRET_KEY=supersecretkey
+      - DATABASE_URL=postgresql+asyncpg://user:password@postgres:5432/sureid
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./backend:/app  # Mount local backend directory into container's /app directory
       - /app/__pycache__  # Optional: prevent overriding __pycache__
 
-
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: react_frontend
+    build: ./frontend
+    container_name: frontend
     ports:
-      - "3000:3000"  # Map container's port 3000 to host's port 3000
-    depends_on:
-      - backend
-    networks:
-      - sureid_network
+      - "3000:3000"
     environment:
-      REACT_APP_BACKEND_URL: "http://localhost:8000"
+      - REACT_APP_BACKEND_URL=http://localhost:8000
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
       - /app/node_modules
 
-volumes:
-  mongo_data:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sureid
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h localhost -U user -d sureid']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 
-networks:
-  sureid_network:
-    name: sureid_network
-    driver: bridge
+volumes:
+  postgres_data:
+  pgadmin_data:

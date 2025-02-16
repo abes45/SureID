@@ -1,75 +1,70 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Login.css';
 
 function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('provider'); // role can be used for UI hints if needed
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8000/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      if (!response.ok) {
-        throw new Error("Login failed");
-      }
-      const data = await response.json();
-      // Save token and user role in localStorage
+      // Send login request to the backend
+      const response = await axios.post(
+        'http://localhost:8000/api/login',
+        { username, password },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      const data = response.data;
+      
+      // Store token and role in localStorage
       localStorage.setItem("xAuthToken", data.token);
       localStorage.setItem("userRole", data.user.role);
-      // Also update the global Axios default header
-      // (Alternatively, a full page reload will pick it up from index.js)
-      // axios.defaults.headers.common["X-Auth-Token"] = data.token;
+      
+      // Update global Axios default header immediately
+      axios.defaults.headers.common["X-Auth-Token"] = data.token;
+      
+      // Navigate based on user role
       if (data.user.role === 'provider') {
-        navigate("/provider");
+        navigate('/provider');
       } else if (data.user.role === 'security') {
-        navigate("/security");
+        navigate('/security');
       } else if (data.user.role === 'admin') {
-        navigate("/admin/users");
+        navigate('/admin/users');
       } else {
-        navigate("/login");
+        navigate('/login');
       }
     } catch (error) {
-      alert("Login failed. Check credentials.");
-      console.error(error);
+      setErrorMsg("Login failed. Please check your credentials.");
+      console.error("Login error:", error);
     }
   };
 
   return (
     <div className="login-container">
-      <h2>Welcome to SureID</h2>
+      <h2>Login to SureID</h2>
+      {errorMsg && <p className="error">{errorMsg}</p>}
       <form onSubmit={handleLogin} className="login-form">
         <label>
           Username:
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            required 
+            required
           />
         </label>
         <label>
           Password:
-          <input 
-            type="password" 
+          <input
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required 
+            required
           />
-        </label>
-        <label>
-          Role:
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="provider">Provider</option>
-            <option value="security">Security</option>
-            <option value="admin">Admin</option>
-          </select>
         </label>
         <button type="submit">Login</button>
       </form>

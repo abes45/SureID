@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import LogoutButton from './LogoutButton';
 import './AdminUserManagement.css';
 
 function AdminUserManagement() {
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+  const navigate = useNavigate();
   const [newUser, setNewUser] = useState({
     username: '',
     password: '',
@@ -29,43 +32,42 @@ function AdminUserManagement() {
   };
 
   return (
-    <div className="admin-user-management">
-      <h2>Add New User</h2>
-      <form onSubmit={createUser} className="user-form">
+    <div className="admin-container">
+      <header className="admin-header">
+        <h2>Admin User Management</h2>
+        <LogoutButton />
+      </header>
+      <form onSubmit={createUser} className="admin-form">
         <label>
           Username:
-          <input 
-            type="text" 
+          <input
+            type="text"
             name="username"
             value={newUser.username}
             onChange={handleChange}
-            required 
+            required
           />
         </label>
         <label>
           Password:
-          <input 
-            type="password" 
+          <input
+            type="password"
             name="password"
             value={newUser.password}
             onChange={handleChange}
-            required 
+            required
           />
         </label>
         <label>
           Role:
-          <select 
-            name="role"
-            value={newUser.role}
-            onChange={handleChange}
-          >
+          <select name="role" value={newUser.role} onChange={handleChange}>
             <option value="provider">Provider</option>
             <option value="security">Security</option>
           </select>
         </label>
         <button type="submit">Create User</button>
       </form>
-      {message && <p className="message">{message}</p>}
+      {message && <p className="admin-message">{message}</p>}
     </div>
   );
 }
