@@ -87,17 +87,21 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow-y: auto; /* Allow vertical scrolling */
   z-index: 1000;
+  padding: 20px; /* Provide spacing on smaller screens */
 }
 
 .modal-content {
   background-color: #fff;
-  width: 90%;
+  width: 100%;
   max-width: 600px;
+  max-height: 90vh; /* Limit modal height to 90% of viewport */
   padding: 20px;
   border-radius: 8px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow-y: auto; /* Scroll inside modal if content is too tall */
 }
 
 .modal-close-btn {
