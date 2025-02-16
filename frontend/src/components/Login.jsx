@@ -6,7 +6,7 @@ function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('provider'); // role selection can be used for UI customization if needed
+  const [role, setRole] = useState('provider'); // role can be used for UI hints if needed
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -20,10 +20,12 @@ function Login() {
         throw new Error("Login failed");
       }
       const data = await response.json();
-      // Save token and role in localStorage
+      // Save token and user role in localStorage
       localStorage.setItem("xAuthToken", data.token);
       localStorage.setItem("userRole", data.user.role);
-      // Redirect based on role
+      // Also update the global Axios default header
+      // (Alternatively, a full page reload will pick it up from index.js)
+      // axios.defaults.headers.common["X-Auth-Token"] = data.token;
       if (data.user.role === 'provider') {
         navigate("/provider");
       } else if (data.user.role === 'security') {
@@ -61,7 +63,6 @@ function Login() {
             required 
           />
         </label>
-        {/* Optionally, the role selection can be used for UI customization */}
         <label>
           Role:
           <select value={role} onChange={(e) => setRole(e.target.value)}>

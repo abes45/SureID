@@ -4,8 +4,8 @@ import './CheckIn.css';
 
 function CheckIn() {
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
-  const token = localStorage.getItem("xAuthToken");
-  // States for extraction and verification steps
+
+  // States for extraction and verification
   const [file, setFile] = useState(null);
   const [extractedData, setExtractedData] = useState(null);
   const [editedData, setEditedData] = useState(null);
@@ -25,13 +25,12 @@ function CheckIn() {
     "International Passport"
   ];
 
-  // Handle file selection
+  // Handle file selection and reset process
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     resetProcess();
   };
 
-  // Reset all states for a fresh check-in process
   const resetProcess = () => {
     setExtractedData(null);
     setEditedData(null);
@@ -49,13 +48,10 @@ function CheckIn() {
       alert("Please select a file.");
       return;
     }
-    console.log("Token is ", token);
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const response = await axios.post(`${backendUrl}/api/extract-id`, formData, {
-        headers: { "Content-Type": "multipart/form-data", "X-Auth-Token": token }
-      });
+      const response = await axios.post(`${backendUrl}/api/extract-id`, formData);
       setExtractedData(response.data.extracted_data);
       setEditedData(response.data.extracted_data);
     } catch (error) {
@@ -63,21 +59,18 @@ function CheckIn() {
     }
   };
 
-  // Step 2: Verify edited data and search for an existing guest
+  // Step 2: Verify data and check if guest exists
   const verifyData = async () => {
     if (!editedData) {
       alert("No data to verify.");
       return;
     }
     try {
-      const verifyResponse = await axios.post(`${backendUrl}/api/verify-id`, editedData, {
-        headers: { "X-Auth-Token": token }
-      });
+      const verifyResponse = await axios.post(`${backendUrl}/api/verify-id`, editedData);
       setVerificationResult(verifyResponse.data.verification);
-      // Search for guest by name (matching id_number as well)
+      // Search for guest by name (and matching id_number)
       const searchResponse = await axios.get(
-        `${backendUrl}/api/guests/search?q=${encodeURIComponent(editedData.name)}`,
-        { headers: { "X-Auth-Token": token } }
+        `${backendUrl}/api/guests/search?q=${encodeURIComponent(editedData.name)}`
       );
       const found = searchResponse.data.find(g => g.id_number === editedData.id_number);
       if (found) {
@@ -98,11 +91,7 @@ function CheckIn() {
   // Create guest if not found
   const createGuest = async () => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/guests`,
-        editedData,
-        { headers: { "X-Auth-Token": token } }
-      );
+      const response = await axios.post(`${backendUrl}/api/guests`, editedData);
       setCheckinGuestId(response.data.friendly_id);
       setCreateOption(false);
       setGuestExists(true);
@@ -111,7 +100,7 @@ function CheckIn() {
     }
   };
 
-  // Confirm check-in using the guest's friendly ID
+  // Confirm check-in
   const checkInGuest = async () => {
     if (!checkinGuestId.trim()) {
       alert("Guest ID is required for check-in.");
@@ -119,9 +108,7 @@ function CheckIn() {
     }
     try {
       const payload = { guest_id: checkinGuestId };
-      const response = await axios.post(`${backendUrl}/api/checkin`, payload, {
-        headers: { "X-Auth-Token": token }
-      });
+      const response = await axios.post(`${backendUrl}/api/checkin`, payload);
       setCheckinResponse(response.data);
       if (response.data.alert) {
         setSecurityAlert(true);

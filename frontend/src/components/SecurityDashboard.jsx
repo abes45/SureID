@@ -10,7 +10,6 @@ function SecurityDashboard() {
   const fetchAlerts = useCallback(async () => {
     try {
       const response = await axios.get(`${backendUrl}/api/checkins`);
-      // Filter for records with a non-empty alert message
       const alertRecords = response.data.filter(record => record.alert && record.alert.trim() !== "");
       setAlerts(alertRecords);
     } catch (error) {
@@ -22,7 +21,7 @@ function SecurityDashboard() {
     fetchAlerts();
     const interval = setInterval(() => {
       fetchAlerts();
-    }, 10000); // Refresh every 10 seconds
+    }, 10000);
     return () => clearInterval(interval);
   }, [fetchAlerts]);
 
@@ -32,22 +31,13 @@ function SecurityDashboard() {
         <h1>SureID - Security Agencies Interface</h1>
       </header>
       <nav className="security-nav">
-        <NavLink 
-          to="/security/current" 
-          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-        >
+        <NavLink to="/security/current" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
           Current Alerts
         </NavLink>
-        <NavLink 
-          to="/security/resolved" 
-          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-        >
+        <NavLink to="/security/resolved" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
           Resolved Cases
         </NavLink>
-        <NavLink 
-          to="/security/audit" 
-          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-        >
+        <NavLink to="/security/audit" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
           Audit Logs
         </NavLink>
       </nav>

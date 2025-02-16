@@ -8,9 +8,7 @@ function GuestList() {
 
   const fetchGuests = useCallback(async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/guests`, {
-        headers: { "X-Auth-Token": localStorage.getItem("xAuthToken") }
-      });
+      const response = await axios.get(`${backendUrl}/api/guests`);
       setGuests(response.data);
     } catch (error) {
       console.error('Error fetching guests:', error);

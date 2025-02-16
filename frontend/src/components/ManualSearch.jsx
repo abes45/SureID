@@ -4,15 +4,11 @@ import './ManualSearch.css';
 
 function ManualSearch() {
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
-  const token = localStorage.getItem("xAuthToken");
-  // States for search & flag update
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [flagStatus, setFlagStatus] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
-
-  // States for guest creation
   const [newGuest, setNewGuest] = useState({
     name: '',
     id_number: '',
@@ -45,12 +41,7 @@ function ManualSearch() {
       return;
     }
     try {
-      
-      const response = await axios.put(
-        `${backendUrl}/api/guests/${selectedGuest.id}/flag`,
-        { flagged: flagStatus },
-        { headers: { "X-Auth-Token": token } }
-      );
+      const response = await axios.put(`${backendUrl}/api/guests/${selectedGuest.id}/flag`, { flagged: flagStatus });
       setUpdateMessage(`Guest ${response.data.name} flag status updated to ${response.data.flagged}`);
       setSelectedGuest(response.data);
     } catch (error) {
@@ -61,11 +52,7 @@ function ManualSearch() {
 
   const createGuest = async () => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/guests`,
-        newGuest,
-        { headers: { "X-Auth-Token": token } }
-      );
+      const response = await axios.post(`${backendUrl}/api/guests`, newGuest);
       setCreateMessage(`Guest ${response.data.name} created with friendly ID ${response.data.friendly_id}`);
       setNewGuest({ name: '', id_number: '', document_type: 'NIN' });
     } catch (error) {
@@ -92,11 +79,7 @@ function ManualSearch() {
           {searchResults.length > 0 ? (
             <ul className="result-list">
               {searchResults.map(guest => (
-                <li
-                  key={guest.id}
-                  onClick={() => selectGuest(guest)}
-                  className="result-item"
-                >
+                <li key={guest.id} onClick={() => selectGuest(guest)} className="result-item">
                   {guest.name} - {guest.friendly_id} - {guest.id_number} - {guest.document_type} {guest.flagged ? "(Flagged)" : ""}
                 </li>
               ))}
@@ -164,7 +147,7 @@ function ManualSearch() {
             <option value="International Passport">International Passport</option>
           </select>
         </label>
-        <button className="button" onClick={createGuest}>Create User</button>
+        <button className="button" onClick={createGuest}>Create Guest</button>
         {createMessage && <p className="message">{createMessage}</p>}
       </div>
     </div>

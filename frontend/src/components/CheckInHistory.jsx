@@ -8,9 +8,7 @@ function CheckInHistory() {
 
   const fetchCheckins = useCallback(async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/checkins`, {
-        headers: { "X-Auth-Token": localStorage.getItem("xAuthToken") }
-      });
+      const response = await axios.get(`${backendUrl}/api/checkins`);
       setCheckins(response.data);
     } catch (error) {
       console.error('Error fetching check-ins:', error);

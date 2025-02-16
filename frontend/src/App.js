@@ -8,7 +8,7 @@ import CheckInHistory from './components/CheckInHistory';
 import SecurityDashboard from './components/SecurityDashboard';
 import ManualSearch from './components/ManualSearch';
 import AdminUserManagement from './components/AdminUserManagement';
-import RoleProtectedRoute from './components/RoleProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function App() {
@@ -17,50 +17,38 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* Provider routes: only provider and admin */}
-        <Route 
-          path="/provider/*" 
-          element={
-            <RoleProtectedRoute allowedRoles={["provider", "admin"]}>
-              <ProviderDashboard />
-            </RoleProtectedRoute>
-          }
-        >
+        {/* Provider routes (accessible by provider and admin) */}
+        <Route path="/provider/*" element={
+          <ProtectedRoute>
+            <ProviderDashboard />
+          </ProtectedRoute>
+        }>
           <Route path="checkin" element={<CheckIn />} />
           <Route path="guestlist" element={<GuestList />} />
           <Route path="checkinhistory" element={<CheckInHistory />} />
           <Route index element={<CheckIn />} />
         </Route>
 
-        {/* Security routes: only security and admin */}
-        <Route 
-          path="/security/*" 
-          element={
-            <RoleProtectedRoute allowedRoles={["security", "admin"]}>
-              <SecurityDashboard />
-            </RoleProtectedRoute>
-          }
-        />
+        {/* Security routes (accessible by security and admin) */}
+        <Route path="/security/*" element={
+          <ProtectedRoute>
+            <SecurityDashboard />
+          </ProtectedRoute>
+        }/>
 
-        {/* Manual routes: only security and admin */}
-        <Route 
-          path="/manual/*" 
-          element={
-            <RoleProtectedRoute allowedRoles={["security", "admin"]}>
-              <ManualSearch />
-            </RoleProtectedRoute>
-          }
-        />
+        {/* Manual routes (accessible by security and admin) */}
+        <Route path="/manual/*" element={
+          <ProtectedRoute>
+            <ManualSearch />
+          </ProtectedRoute>
+        }/>
 
-        {/* Admin route: only admin */}
-        <Route 
-          path="/admin/users" 
-          element={
-            <RoleProtectedRoute allowedRoles={["admin"]}>
-              <AdminUserManagement />
-            </RoleProtectedRoute>
-          }
-        />
+        {/* Admin routes (accessible by admin only) */}
+        <Route path="/admin/users" element={
+          <ProtectedRoute>
+            <AdminUserManagement />
+          </ProtectedRoute>
+        }/>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

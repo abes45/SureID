@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import LogoutButton from './LogoutButton';
 import './AdminUserManagement.css';
 
 function AdminUserManagement() {
@@ -8,7 +7,7 @@ function AdminUserManagement() {
   const [newUser, setNewUser] = useState({
     username: '',
     password: '',
-    role: 'provider' // default role; admin can choose "provider" or "security"
+    role: 'provider'
   });
   const [message, setMessage] = useState('');
 
@@ -18,14 +17,8 @@ function AdminUserManagement() {
 
   const createUser = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("xAuthToken");
-    console.log("Token in AdminUserManagement:", token); // Debug log
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/users`,
-        newUser,
-        { headers: { "X-Auth-Token": token } }
-      );
+      const response = await axios.post(`${backendUrl}/api/users`, newUser);
       setMessage(`User ${response.data.username} created successfully!`);
       setNewUser({ username: '', password: '', role: 'provider' });
     } catch (error) {
@@ -34,11 +27,9 @@ function AdminUserManagement() {
       setMessage(errDetail);
     }
   };
-  
 
   return (
     <div className="admin-user-management">
-        <LogoutButton />
       <h2>Add New User</h2>
       <form onSubmit={createUser} className="user-form">
         <label>
